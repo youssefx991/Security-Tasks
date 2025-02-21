@@ -73,12 +73,20 @@ public class MonoalphabeticCipher {
 
         for (int i = 0; i < plaintext.length(); i++) {
             char plainChar = plaintext.charAt(i);
-            char cipherChar = ciphertext.charAt(i);
+            char cipherChar = ciphertext.charAt(i); 
 
             if (Character.isLetter(plainChar)) {
                 int index = alphabet.indexOf(plainChar);
+
                 // TODO: Ensure each letter is mapped only once
-                keyMap[index] = ciphertext.charAt(i);
+                if (keyMap[index] == ' ')                
+                    keyMap[index] = cipherChar;
+                else if (keyMap[index] != cipherChar)
+                {
+                    System.out.println("ERROR - same char in plaintext is mapped to different char");
+                    return null;
+                }
+
             }
         }
 
