@@ -46,7 +46,8 @@ public class DES {
     // Converts a binary string to a hex string
     private static String binaryToHex(String binary) {
         // TODO: Implement this method to convert a binary string to a hexadecimal string.
-        return null; // Placeholder return statement
+        BigInteger bigInt = new BigInteger(binary, 2);
+        return String.format("%016X", bigInt); // Convert to hex and pad to 16 characters
     }
 
     // Generic permutation function
@@ -115,12 +116,17 @@ public class DES {
     // Performs bitwise XOR on two binary strings of equal length
     private String xor(String a, String b) {
         // TODO: Implement bitwise XOR between strings 'a' and 'b'.
-
+        
         if (a.length() != b.length()) {
             throw new IllegalArgumentException("Strings must be of equal length for XOR operation.");
         }
 
-        return null; // Placeholder return
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < a.length(); i++) {
+            result.append(a.charAt(i) == b.charAt(i) ? '0' : '1');
+        }
+
+        return result.toString(); // Placeholder return
     }
 
     // Generate the subkeys (PC-1, shifts, PC-2)
@@ -128,12 +134,21 @@ public class DES {
         String[] subkeys = new String[16];
 
         // TODO: Apply PC-1 to the 64-bit key to get a 56-bit key
-
+        String key56 = permute(keyBin, PC1);
+        
         // TODO: Split the 56-bit key into two halves
+        String C = key56.substring(0, 28); // Left half
+        String D = key56.substring(28); // Right half
 
         // TODO: Generate 16 subkeys by shifting and applying PC-2
         for (int i = 0; i < 16; i++) {
+            // Perform left shifts
+            C = leftShift(C, SHIFTS[i]);
+            D = leftShift(D, SHIFTS[i]);
 
+            // Combine C and D and apply PC-2 to get the subkey
+            String combinedKey = C + D;
+            subkeys[i] = permute(combinedKey, PC2);
         }
 
         return subkeys;
@@ -143,17 +158,31 @@ public class DES {
     // Feistel function
     private String feistel(String R, String subKey) {
         // TODO: Expand R to 48 bits using E-table
+        String expandedR = permute(R, E);
 
         // TODO: XOR the expanded R with the subkey
+        String xored = xor(expandedR, subKey);
 
         // TODO: Divide the xored result into 8 blocks and apply S-box substitution
         StringBuilder substituted = new StringBuilder();
+        int index = 0;
         for (int i = 0; i < 8; i++) {
+            int rowNo = Integer.parseInt((""+ xored.charAt(index) + xored.charAt(index + 5)), 2); // First and last bits
+            int colNo = Integer.parseInt((xored.substring(index+1, index+5)), 2); // Middle bits
+            
+            int result = SBOXES[i][rowNo][colNo]; // Get the S-box value
+            String binaryResult = Integer.toBinaryString(result);
+
+            
+            substituted.append(binaryResult.length() == 4 ? binaryResult : String.format("%4s", binaryResult).replace(' ', '0')); // Pad to 4 bits
+
+            index += 6; // Move to the next block
         }
 
         // TODO: Apply permutation P to the substituted output
+        String permutedSubstituted = permute(substituted.toString(), P);
 
-        return null;
+        return permutedSubstituted;
     }
 
 }
