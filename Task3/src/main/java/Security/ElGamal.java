@@ -6,35 +6,29 @@ import java.util.List;
 
 public class ElGamal {
     public List<Long> encrypt(int q, int alpha, int y, int k, int m) {
-        long K =  modPow(y, k, q);
-        long c1 = modPow(alpha, k, q);
+        long K =  mod_large(y, k, q);
+        long c1 = mod_large(alpha, k, q);
         long c2 = (K * m) % q;
 
         return Arrays.asList(c1, c2);
     }
 
     public int decrypt(int c1, int c2, int x, int q) {
-        int K = (int) modPow(c1, x, q);
+        int K = (int) mod_large(c1, x, q);
         int K_inv = extended_euclidean(K, q);
         int M = (c2 * K_inv) % q;
 
         return M;
     }
 
-    public long modPow(long base, long exp, long mod)
-    {
-        long result = 1;
-        base %= mod;
-
-        while (exp > 0){
-            if (exp % 2 == 1)
-                result = (result * base) % mod;
-            base = (base * base) % mod;
-            exp /= 2;
-        }
-
-        return result;
+    public long mod_large(long base, long exp, long mod) {
+    long result = 1;
+    for (long i = 0; i < exp; i++) {
+        result = (result * base) % mod;
     }
+    return result;
+}
+
 
     public int extended_euclidean(int b, int m)
     {

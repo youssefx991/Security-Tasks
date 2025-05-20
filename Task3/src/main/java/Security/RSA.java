@@ -4,7 +4,7 @@ public class RSA {
 
     public int encrypt(int p, int q, int M, int e) {
         int n = p * q;
-        return (int) modPow(M, e, n);
+        return (int) mod_large(M, e, n);
     }
 
     public int decrypt(int p, int q, int C, int e) {
@@ -12,22 +12,18 @@ public class RSA {
         int phi_n = (p-1) * (q-1);
         int d = extended_euclidean(e, phi_n);
 
-        return (int) modPow(C, d, n);
+        return (int) mod_large(C, d, n);
     }
 
 
-    public long modPow(long base, long exp, long mod){
-        long result = 1;
-        base = base % mod;
-
-        while (exp > 0){
-            if (exp % 2 == 1)
-                result = (result * base) % mod;
-            base = (base * base) % mod;
-            exp /= 2;
-        }
-        return result;
+    public long mod_large(long base, long exp, long mod) {
+    long result = 1;
+    for (long i = 0; i < exp; i++) {
+        result = (result * base) % mod;
     }
+    return result;
+}
+
 
     public int extended_euclidean(int b, int m){
         
